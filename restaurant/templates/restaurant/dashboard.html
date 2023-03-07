@@ -26,7 +26,7 @@
                             <th scope="col">Street</th>
                             <th scope="col">City</th>
                             <th scope="col">State</th>
-                            <th scope="col">Zip Code</th>
+                            <th scope="col">No of seat reserved</th>
                             <th scope="col">Is Paid?</th>
                             <th scope="col">Details</th>
                         </tr>
@@ -42,7 +42,7 @@
                             <td>{{ order.street }}</td>
                             <td>{{ order.city }}</td>
                             <td>{{ order.state }}</td>
-                            <td>{{ order.zip_code }}</td>
+                            <td>{{ order.numberOfSeatReserved }}</td>
                             <td>
                                 {% if order.is_paid %}
                                 <i style="color: green;" class="fas fa-check"></i>

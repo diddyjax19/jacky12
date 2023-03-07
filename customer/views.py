@@ -1,9 +1,13 @@
 import json
+
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.db.models import Q
 from django.core.mail import send_mail
-from .models import MenuItem, Category, OrderModel
+
+from .models import MenuItem,  ReservationOrderModel, Restaurant
 
 
 class Index(View):
@@ -16,7 +20,9 @@ class About(View):
         return render(request, 'customer/about.html')
 
 
-class Order(View):
+
+
+class ReservationOrder(View):
     def get(self, request, *args, **kwargs):
         # get every item from each category
         appetizers = MenuItem.objects.filter(
@@ -33,7 +39,7 @@ class Order(View):
             'drinks': drinks,
         }
 
-        # render the template
+
         return render(request, 'customer/order.html', context)
 
     def post(self, request, *args, **kwargs):
@@ -42,7 +48,8 @@ class Order(View):
         street = request.POST.get('street')
         city = request.POST.get('city')
         state = request.POST.get('state')
-        zip_code = request.POST.get('zip')
+
+        noOfSeatReserved = request.POST.get('noOfSeatReserved')
 
         order_items = {
             'items': []
@@ -67,20 +74,20 @@ class Order(View):
             price += item['price']
             item_ids.append(item['id'])
 
-        order = OrderModel.objects.create(
+        order = ReservationOrderModel.objects.create(
             price=price,
             name=name,
             email=email,
             street=street,
             city=city,
             state=state,
-            zip_code=zip_code
+
         )
         order.items.add(*item_ids)
 
-        # After everything is done, send confirmation email to the user
-        body = ('Thank you for your order! Your food is being made and will be delivered soon!\n'
-                f'Your total: {price}\n'
+
+        body = ('Thank you for your order! Your table will be reserved! \n'
+                f'Your amount per table: {price}\n'
                 'Thank you again for your order!')
 
         send_mail(
@@ -99,9 +106,9 @@ class Order(View):
         return redirect('order-confirmation', pk=order.pk)
 
 
-class OrderConfirmation(View):
+class ReservationOrderConfirmation(View):
     def get(self, request, pk, *args, **kwargs):
-        order = OrderModel.objects.get(pk=pk)
+        order = ReservationOrderModel.objects.get(pk=pk)
 
         context = {
             'pk': order.pk,
